@@ -1,0 +1,161 @@
+/*Server.java*/
+
+import java.net.*;
+import java.io.*;
+
+public class Server extends Thread
+{
+   private ServerSocket serverSocket;
+   
+   public Server(int port) throws IOException
+   {
+      serverSocket = new ServerSocket(port);
+   
+   }
+
+   public void run()
+   {
+      while(true)
+      {
+         try
+         {
+			
+			int c1,c2,sum,andbit=0,orbit=0,p;
+            System.out.println("Waiting for client on port " +
+            serverSocket.getLocalPort() + "...");
+            Socket server = serverSocket.accept();
+            System.out.println("Just connected to "
+                  + server.getRemoteSocketAddress());
+            DataInputStream in =
+                  new DataInputStream(server.getInputStream());
+                  DataOutputStream out =
+                 new DataOutputStream(server.getOutputStream());
+             int prod;
+            System.out.println("Received Data");
+			 p=in.readInt();c1=in.readInt();c2=in.readInt();
+			 System.out.println("Computing.....");
+			 
+			
+			 sum = c1+c2;
+            
+             out.writeInt(sum);
+             prod = c1*c2;
+            out.writeInt(prod); 
+            
+			 //server.close();
+                   
+           
+        
+         }
+         catch(IOException e)
+         {
+            e.printStackTrace();
+            break;
+         }
+      }
+   }
+   public static void main(String [] args)
+   {
+      int port = 5001;//Integer.parseInt(args[0]);
+      try
+      {
+         Thread t = new Server(port);
+         t.start();
+      }catch(IOException e)
+      {
+         e.printStackTrace();
+      }
+   }
+}
+
+
+
+
+/*Client.java*/
+
+import java.io.*;
+import java.util.*;
+import java.net.*;
+class Client {
+	
+	
+	
+	public static void main(String args[])throws IOException {
+			
+	  String serverName = "localhost";
+      int port = 5001;
+      
+      System.out.println("Enter Values for p,q1,q2,r1,r2,b1,b2 respectively..");
+      int[] arr = new int[10];
+      BufferedReader uin = new BufferedReader(new InputStreamReader(System.in));
+	  int len=7;int andbit=0,orbit=0;
+	  int p,sum=0,prod=0;
+	  int c1,c2;
+	  int bin1,bin2;
+	  	  for(int i=0;i<len-2;i++){
+          arr[i]=Integer.parseInt(uin.readLine());
+      }
+	  System.out.println("Enter Integer for b1");
+	  bin1=Integer.parseInt(uin.readLine());
+	  System.out.println("Enter Integer for b2");
+	  bin2=Integer.parseInt(uin.readLine());
+	  String bins1=Integer.toBinaryString(bin1);
+	  String bins2=Integer.toBinaryString(bin2);
+	  int bilen1 = bins1.length();int bilen2 = bins2.length();
+	  
+
+	  p=arr[0];
+
+      try
+      {
+		  for(int i=0,j=0;i<=bilen1 && j<=bilen2;i++,j++){
+         System.out.println("Connecting to " + serverName + " on port " + port);
+         Socket client = new Socket(serverName, port);
+         System.out.println("Just connected to " + client.getRemoteSocketAddress());
+         OutputStream outToServer = client.getOutputStream();
+         DataOutputStream out = new DataOutputStream(outToServer);
+         InputStream inFromServer = client.getInputStream();
+         DataInputStream in = new DataInputStream(inFromServer);
+         
+			if(bins1.charAt(i) == '1'){arr[5] = 1;}else{arr[5] = 0;}
+			if(bins2.charAt(j) == '1'){arr[6] = 1;}else{arr[6] = 0;}
+		
+			//System.out.println("b1 :"arr[5]+"   "+" b2 :"+arr[6]);
+			c1=(arr[0]*arr[1])+(2*arr[3])+arr[5];
+			c2=(arr[0]*arr[2])+(2*arr[4])+arr[6];
+			out.writeInt(p);out.writeInt(c1);out.writeInt(c2);
+			
+         
+			sum=in.readInt();
+			prod=in.readInt();
+			System.out.println("Addition :"+sum+"\nMultiplication :"+prod);
+			if((sum % p) % 2 != 0){andbit=1;}
+			
+			if((prod % p) % 2 != 0){orbit=1;}
+        
+			if(orbit == 0) {
+				System.out.println("Addition :Even and b=0\n");
+				}else
+				{
+					System.out.println("Addition :Odd and b=1\n");
+				}
+         
+			if(andbit == 0) {
+				System.out.println("Multiplication :Even and b=0\n");
+			}else
+			{
+				System.out.println("Multiplication :Odd and b=1\n");
+			}client.close();
+		}
+         
+      }
+      catch(IOException e)
+      {
+         e.printStackTrace();
+      }
+
+
+	}
+	
+}
+
